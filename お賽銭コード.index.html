@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キャッシュレスお参り</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #a80000 0%, #660000 100%);
+      color: #ffffff;
+      font-family: 'Helvetica Neue', Arial, 'ヒラギノ角ゴ Pro W3', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      padding: 2.5rem 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      width: 85%;
+      max-width: 380px;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .check-icon {
+      font-size: 50px;
+      color: #00c853;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 10px 0;
+      color: #222;
+    }
+    .amount {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d32f2f;
+      margin: 15px 0 5px 0;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 25px;
+    }
+    .omikuji-box {
+      background: #fff8e1;
+      border: 2px dashed #ffa000;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
+    .omikuji-title {
+      font-size: 0.9rem;
+      color: #f57c00;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .result {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="check-icon">✓</div>
+    <h1>お参り完了</h1>
+    <p style="margin:0; color:#555;">ご参拝ありがとうございます</p>
+    
+    <div class="amount">お賽銭 500円相当</div>
+    <div class="note">※文化祭用の演出です。実際の請求はありません。</div>
+
+    <div class="omikuji-box">
+      <div class="omikuji-title">本日のおみくじ結果</div>
+      <div class="result" id="omikuji">運勢を占っています...</div>
+    </div>
+
+    <button class="btn" onclick="playSound()">音を流す 🔔</button>
+  </div>
+
+  <script>
+    // おみくじのランダム選出
+    const fortunes = ["超大吉 ⛩️", "大吉 ✨", "中吉 🌸", "吉 🎉", "文化祭大成功吉 🏫"];
+    const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    document.getElementById("omikuji").innerText = randomFortune;
+
+    // WEB Audio APIを用いた効果音（コイン音）の自動生成
+    function playSound() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      function playTone(freq, duration, delay) {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        }, delay * 1000);
+      }
+
+      // 「チャリン」音の合成（高い2音を連続再生）
+      playTone(2093, 0.15, 0);   // C7
+      playTone(3135, 0.4, 0.08); // G7
+    }
+
+    // 画面タップ時にも音を鳴らせるように設定
+    document.addEventListener('click', function() {
+      playSound();
+    }, { once: true });
+  </script>
+</body>
+</html>
